@@ -37,6 +37,5 @@ install.versions('rmarkdown', '1.18')
 install.versions('covr', '3.2.1')
 install.versions('bizdays', '1.0.6')
 install.versions('aws.s3', '0.3.21')
-install.packages('png')
 install.versions('memoise', '1.1.0')
 
