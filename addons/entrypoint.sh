@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# stop when error occurs
+set -e
+
 ### Default values to variables
 AWS_REGION=${AWS_REGION:-us-east-1}
 ENVIRONMENT=${ENVIRONMENT:-DEV}
