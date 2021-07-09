@@ -13,7 +13,6 @@ export AWS_DEFAULT_REGION
 export AWS_REGION
 
 ### Entrypoint.d located configurations
-mkdir -p /entrypoint.d
 if /usr/bin/find "/entrypoint.d/" -mindepth 1 -maxdepth 1 -type f -print -quit 2>/dev/null | read v; then
     echo "$0: /entrypoint.d/ is not empty, will attempt to perform configuration"
 

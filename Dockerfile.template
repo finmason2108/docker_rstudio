@@ -30,7 +30,7 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
     && ls /tmp/Packages_*.py2 && (apt-get install --no-install-recommends -y python-pip python-setuptools python-wheel && cat /tmp/Packages_*.py2 > /tmp/py2 | pip install -r /tmp/py2) || /bin/true \
     && ls /tmp/Packages_*.py3 && (apt install --no-install-recommends -y python3-pip python3-setuptools python3-wheel && cat /tmp/Packages_*.py3 > /tmp/py3 | pip3 install -r /tmp/py3) || /bin/true \
     # Final permissions and folders
-    && mkdir -p /home/ta_analytics \
+    && mkdir -p /home/ta_analytics /entrypoint.d \
     && chown 10000:10000 /home/ta_analytics \
     # Clean caches
     && apt-get purge -y $BUILDDEPS \
