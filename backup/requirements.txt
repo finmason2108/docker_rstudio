@@ -1,5 +1,5 @@
 --only-binary numpy,scipy
-numpy == 1.11.1
+numpy == 1.21.0
 scipy == 0.18.1
 pandas == 0.15.1
 scikit-learn[alldeps] == 0.17.1
