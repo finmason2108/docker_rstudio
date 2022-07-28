@@ -2,7 +2,12 @@ def makeDockerImageVersion(){
   if(env.BRANCH_NAME == 'master'){
     return 'latest'
   }
-  return env.BRANCH_NAME
+  /* https://docs.docker.com/engine/reference/commandline/tag/
+   * A tag name must be valid ASCII and may contain lowercase and uppercase
+   * letters, digits, underscores, periods and dashes.  A tag name may not start
+   * with a period or a dash and may contain a maximum of 128 characters.
+   */
+  return env.BRANCH_NAME.replaceAll(/[^A-Za-z0-9_.-]/, '').replaceFirst(/^[.-]*/, '').take(128)
 }
 
 pipeline{
