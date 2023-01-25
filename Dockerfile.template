@@ -56,9 +56,9 @@ RUN wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_
     && cd .. && rm -rf boost_1_75_0 boost_1_75_0.tar.bz2
 
 # HZ Cpp client
-RUN wget https://github.com/hazelcast/hazelcast-cpp-client/archive/v4.2.1.tar.gz -q
-RUN tar xvf /v4.2.1.tar.gz\
-    && cd hazelcast-cpp-client-4.2.1\
+RUN wget https://github.com/hazelcast/hazelcast-cpp-client/archive/v4.0.1.tar.gz -q
+RUN tar xvf /v4.0.1.tar.gz\
+    && cd hazelcast-cpp-client-4.0.1\
     && mkdir build\
     && cd build\
     && cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS=-fPIC -DCMAKE_INSTALL_PREFIX=/home/hz\
