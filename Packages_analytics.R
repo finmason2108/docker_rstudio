@@ -1,6 +1,6 @@
 # Install specific versions of libraries that are loaded in .Rprofile: 
 # https://github.com/finmason2108/FinMason-Analytics/blob/1d61d092886af439cdadb00cc4bd005dff52a891/dev/OneByOne/NewArc/.Rprofile#L197-L200
-install.packages('https://cran.r-project.org/src/contrib/Archive/devtools/devtools_2.4.4.tar.gz', repos=NULL, type="source")
+install.packages('https://cran.r-project.org/src/contrib/Archive/devtools/devtools_2.4.4.tar.gz', repos=NULL, type="source", dependencies = TRUE)
 require(devtools)
 
 # Install specific versions of libraries
