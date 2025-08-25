@@ -1,3 +1,12 @@
+library identifier: 'fm_general@master', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+   remote: 'https://github.com/finmason2108/Automation-SharedLibraryGeneral.git',
+   credentialsId: 'gh_finmasonbot1'])
+
+def rbaseImage
+def rstudioImage
+def testImage
+
 def makeDockerImageVersion(){
   if(env.BRANCH_NAME == 'master'){
     return 'latest'
@@ -16,12 +25,8 @@ pipeline{
   }
 
   options {
+    disableResume()
     timestamps()
-  }
-
-  environment {
-    registry = "657399224926.dkr.ecr.us-east-1.amazonaws.com/rstudio"
-    registryCredential = 'ecr:us-east-1:ta_jenkins'
   }
 
   stages{
@@ -52,7 +57,7 @@ pipeline{
         //   steps{
         //     script{
         //       ansiColor('xterm') {
-        //         dvImage = docker.build("${registry}:dv-${makeDockerImageVersion()}", "./dv")
+        //         dvImage = docker.build("${fm_policy.ecr_host}/rstudio:dv-${makeDockerImageVersion()}", "./dv")
         //       }
         //     }
         //   }
@@ -62,7 +67,7 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                rstudioImage = docker.build("${registry}:${makeDockerImageVersion()}", "./rstudio")
+                rstudioImage = docker.build("${fm_policy.ecr_host}/rstudio:${makeDockerImageVersion()}", "./rstudio")
               }
             }
           }
@@ -72,7 +77,7 @@ pipeline{
           steps{
             script{
               ansiColor('xterm') {
-                rbaseImage = docker.build("${registry}:rbase-${makeDockerImageVersion()}", "./rbase")
+                rbaseImage = docker.build("${fm_policy.ecr_host}/rstudio:rbase-${makeDockerImageVersion()}", "./rbase")
               }
             }
           }
@@ -86,7 +91,7 @@ pipeline{
         script{
           ansiColor('xterm') {
             sh "sed -r 's!%%CONTAINER_VERSION%%!${makeDockerImageVersion()}!g;' test/Dockerfile.template > test/Dockerfile"
-            testImage = docker.build("${registry}:test-${makeDockerImageVersion()}", "./test")
+            testImage = docker.build("${fm_policy.ecr_host}/rstudio:test-${makeDockerImageVersion()}", "./test")
           }
         }
       }
@@ -100,7 +105,7 @@ pipeline{
       }
       steps{
         script{
-          docker.withRegistry('https://657399224926.dkr.ecr.us-east-1.amazonaws.com', registryCredential) {
+          docker.withRegistry(fm_policy.ecr_registry_url, fm_policy.ecr_registry_credentials_id) {
             // dvImage.push()
             rstudioImage.push()
             rbaseImage.push()
@@ -119,7 +124,7 @@ pipeline{
     }
     failure{
       script {
-        emailext subject: "Build# ${env.BUILD_NUMBER} Docker image ${registry} failed",
+        emailext subject: "Docker image ${fm_policy.ecr_host}/rstudio build #${env.BUILD_NUMBER} failed",
                    body: '${SCRIPT, template="groovy-html.template"}',
                    mimeType: 'text/html',
                    from: "jenkins@finmason.com",
