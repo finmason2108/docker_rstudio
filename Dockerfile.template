@@ -1,5 +1,5 @@
 FROM rocker/%%CONTAINER_TYPE%%:3.6.2
-MAINTAINER "Milos Kozak" mkozak@finmason.com
+LABEL org.opencontainers.image.authors="Milos Kozak <mkozak@finmason.com>"
 
 # Place static files
 COPY *.R /tmp/
