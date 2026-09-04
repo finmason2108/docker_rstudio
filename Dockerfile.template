@@ -7,6 +7,18 @@ COPY Packages_*.py* /tmp/
 COPY sss_client.pam /etc/pam.d/sss_client
 COPY entrypoint.sh /entrypoint.sh
 
+# Debian buster is EOL: deb.debian.org and security.debian.org return 404 for it.
+# The base image ships snapshot.debian.org lines for exactly this case, commented
+# out - activate them and disable the Valid-Until check, since a Release file from
+# 2020 is long expired. The apt-get update is here so an apt failure surfaces in
+# this step rather than inside the chain below.
+RUN sed -i \
+        -e 's|^deb |#deb |' \
+        -e 's|^# deb http://snapshot\.debian\.org|deb http://snapshot.debian.org|' \
+        /etc/apt/sources.list \
+    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/10no-check-valid-until \
+    && apt-get update
+
 # Install software allowing integration with base OS
 RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
     && apt-get update && apt-get install -y --no-install-recommends \
@@ -43,9 +55,17 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackageExit(df, /g' | R 
 
 ### Hazelcast layer
-RUN echo deb http://deb.debian.org/debian buster-backports main >> /etc/apt/sources.list \
-    && apt update \
-    && apt install zlib1g-dev bzip2 cmake/buster-backports g++ wget -y
+RUN apt update \
+    && apt install zlib1g-dev bzip2 g++ wget -y
+
+# hazelcast-cpp-client 4.0.1 uses install(DIRECTORY ... TYPE INCLUDE), which needs
+# cmake 3.14; buster main has 3.13.4. The alternative, buster-backports, has no
+# cmake at the Debian snapshot date this image pins, and pointing it at a later
+# snapshot would draw Debian packages from two different dates into one image.
+# Taking cmake from upstream instead keeps every Debian package on the one date.
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.16.9/cmake-3.16.9-Linux-x86_64.tar.gz \
+    && tar -xzf cmake-3.16.9-Linux-x86_64.tar.gz -C /usr/local --strip-components=1 \
+    && rm cmake-3.16.9-Linux-x86_64.tar.gz
 
 # Boost
 RUN wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.bz2 -q\
