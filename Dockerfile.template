@@ -96,4 +96,4 @@ RUN unzip master.zip\
 
 # OPS-1324
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
-CMD = ["/bin/bash"]
+CMD ["/bin/bash"]
