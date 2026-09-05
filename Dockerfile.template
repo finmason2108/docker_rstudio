@@ -85,10 +85,9 @@ RUN tar xvf /v4.0.1.tar.gz\
     && cmake --build . --config Release\
     && cmake --build . --target install --config Release
 
-# R-Cpp bridge  
-RUN wget https://github.com/znevrly/R-Hazelcast-c-package/archive/refs/heads/master.zip 
-RUN unzip master.zip\
-    && cd  R-Hazelcast-c-package-master/\
+# R-Cpp bridge
+COPY R-Hazelcast-c-package-master/ /R-Hazelcast-c-package-master/
+RUN cd  R-Hazelcast-c-package-master/\
     && cp /usr/local/lib/libboost_thread.a hz-libs/lib/\
     && cp /usr/local/lib/libboost_chrono.a hz-libs/lib/\
     && cp /home/hz/lib/libhazelcast-cpp-client.a hz-libs/lib/\

@@ -40,6 +40,7 @@ pipeline{
             echo $i;
             cp addons/* $i/
             cp Packages_analytics.* $i/
+            cp -r R-Hazelcast-c-package-master $i/
             touch $i/Packages_dummy.py
           done;
           rm dv/Packages_analytics.*
