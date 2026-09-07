@@ -1,35 +1,34 @@
 
-#' Create a HazelcastClient Object from the HazelcastClient C++ Class
+#' Hazelcast client backed by the Hazelcast C++ client
 #'
-#' Allows for the creation of a HazelcastClient Object in _C++_ from _R_
-#' using the _C++_ HazelcastClient class.
+#' An Rcpp module class wrapping the Hazelcast C++ client. Values are stored and
+#' retrieved as raw vectors, so callers serialise and unserialise R objects
+#' themselves.
 #'
-#' @param name Name of HazelcastClient
-#' @param age  Age of HazelcastClient
-#' @param male Is HazelcastClient a Male?
+#' @param ip character Address of a cluster member.
+#' @param clusterName character Name of the Hazelcast cluster.
+#' @param port integer Port of the cluster member. Defaults to 5701.
 #'
 #' @return
-#' A `HazelcastClient` object from the _C++_ HazelcastClient Class.
+#' A `HazelcastClient` object from the _C++_ HazelcastClient class.
+#'
+#' @section Methods:
+#' \describe{
+#'   \item{`GetUrl()`}{Address, port and current map name, as used in error messages.}
+#'   \item{`SetMap(mapName)`}{Select the distributed map used by `Get`, `TryGet` and `Put`.}
+#'   \item{`SetVerboseMode(verboseMode)`}{Print a line on each successful fetch.}
+#'   \item{`Get(key)`}{Return the stored raw vector. Throws if the key is absent.}
+#'   \item{`TryGet(key)`}{Return the stored raw vector, or an empty vector if the key is absent.}
+#'   \item{`Put(key, value)`}{Store a raw vector under `key`.}
+#' }
 #'
 #' @examples
-#' ##################
-#' ## Constructor
-#'
-#' # Construct new HazelcastClient object called "ben"
-#' ben = new(HazelcastClient, name = "Ben", age = 26, male = TRUE)
-#'
-#' ##################
-#' ## Getters
-#'
-#' ben$LikesBlue()
-#'
-#' ben$GetAge()
-#'
-#' ben$IsMale()
-#'
-#' ben$GetName()
-#'
-#' ben$GetFavoriteNumbers()
+#' \dontrun{
+#' hz <- new(HazelcastClient, ip = "10.30.100.180", clusterName = "DEV", port = 5701)
+#' hz$SetMap("binarymap")
+#' hz$Put("42:asset_info", serialize(data.frame(a = 1), NULL))
+#' unserialize(hz$Get("42:asset_info"))
+#' }
 #' @name HazelcastClient
 #' @export HazelcastClient
 
