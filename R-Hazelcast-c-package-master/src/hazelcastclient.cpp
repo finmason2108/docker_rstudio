@@ -18,13 +18,14 @@ HazelcastClient::HazelcastClient(std::string ip, std::string clusterName, int po
 
 std::vector<hazelcast::byte> HazelcastClient::Get(std::string key)
 {
-  if (!map->contains_key(key).get()) {
+  auto value = this->map->get<std::string, std::vector<hazelcast::byte>>(key).get();
+  if (!value) {
     throw std::invalid_argument("HZ error: can not find key: " + key + " at " + GetUrl());
   }
   if (this->verboseMode) {
     std::cout << "Successfully fetched HZ value: " << this->mapName << "/" << key << "\n";
-  }  
-  return this->map->get<std::string, std::vector<hazelcast::byte>>(key).get().value();
+  }
+  return std::move(*value);
 }
 
 // Returns an empty vector when the key is absent. Callers that treat a miss as a
