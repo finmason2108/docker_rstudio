@@ -7,8 +7,8 @@ def rbaseImage
 def rstudioImage
 def testImage
 
-def makeDockerImageVersion(){
-  if(env.BRANCH_NAME == 'master'){
+def makeDockerImageVersion() {
+  if (env.BRANCH_NAME == 'master') {
     return 'latest'
   }
   /* https://docs.docker.com/engine/reference/commandline/tag/
@@ -19,66 +19,54 @@ def makeDockerImageVersion(){
   return env.BRANCH_NAME.replaceAll(/[^A-Za-z0-9_.-]/, '').replaceFirst(/^[.-]*/, '').take(128)
 }
 
-pipeline{
-  agent {
-    label "analytics"
-  }
+pipeline {
+  agent { label 'analytics' }
 
   options {
     disableResume()
     timestamps()
   }
 
-  stages{
-    stage("Prepare building environment"){
-      steps{
-        script{
+  stages {
+    stage('Prepare building environment') {
+      steps {
+        script {
           sh 'env'
           sh 'bash addons/render.sh'
-          sh '''#!/bin/bash
-          for i in dv rbase rstudio; do
-            echo $i;
-            cp addons/* $i/
-            cp Packages_analytics.* $i/
-            cp -r R-Hazelcast-c-package-master $i/
-            touch $i/Packages_dummy.py
-          done;
-          rm dv/Packages_analytics.*
-          cp Packages_datavalidation.* dv/
-          touch dv/Packages_dummy.py
+          sh '''
+            for i in dv rbase rstudio; do
+              echo $i;
+              cp addons/* $i/
+              cp Packages_analytics.* $i/
+              cp -r R-Hazelcast-c-package-master $i/
+              touch $i/Packages_dummy.py
+            done
+            rm dv/Packages_analytics.*
+            cp Packages_datavalidation.* dv/
+            touch dv/Packages_dummy.py
           '''
-
           milestone()
         }
       }
     }
-    stage("Build base images"){
-      parallel{
-        // stage("Datavalidation image"){
-        //   steps{
-        //     script{
-        //       ansiColor('xterm') {
-        //         dvImage = docker.build("${fm_policy.ecr_host}/rstudio:dv-${makeDockerImageVersion()}", "./dv")
-        //       }
-        //     }
-        //   }
-        // }
 
-        stage("RStudio"){
-          steps{
-            script{
+    stage('Build base images') {
+      parallel {
+        stage('RStudio') {
+          steps {
+            script {
               ansiColor('xterm') {
-                rstudioImage = docker.build("${fm_policy.ecr_host}/rstudio:${makeDockerImageVersion()}", "./rstudio")
+                rstudioImage = docker.build("${fm_policy.ecr_host}/rstudio:${makeDockerImageVersion()}", './rstudio')
               }
             }
           }
         }
 
-        stage("Analytical team image"){
-          steps{
-            script{
+        stage('Analytical team image') {
+          steps {
+            script {
               ansiColor('xterm') {
-                rbaseImage = docker.build("${fm_policy.ecr_host}/rstudio:rbase-${makeDockerImageVersion()}", "./rbase")
+                rbaseImage = docker.build("${fm_policy.ecr_host}/rstudio:rbase-${makeDockerImageVersion()}", './rbase')
               }
             }
           }
@@ -87,27 +75,25 @@ pipeline{
       }
     }
 
-    stage("Build development image"){
-      steps{
-        script{
+    stage('Build development image') {
+      steps {
+        script {
           ansiColor('xterm') {
             sh "sed -r 's!%%CONTAINER_VERSION%%!${makeDockerImageVersion()}!g;' test/Dockerfile.template > test/Dockerfile"
-            testImage = docker.build("${fm_policy.ecr_host}/rstudio:test-${makeDockerImageVersion()}", "./test")
+            testImage = docker.build("${fm_policy.ecr_host}/rstudio:test-${makeDockerImageVersion()}", './test')
           }
         }
       }
     }
 
-
-    stage("Publish to ECR"){
+    stage('Publish to ECR') {
       // Skip docker image publish when pull request
-      when{
+      when {
         not { branch 'PR-*' }
       }
-      steps{
-        script{
+      steps {
+        script {
           docker.withRegistry(fm_policy.ecr_registry_url, fm_policy.ecr_registry_credentials_id) {
-            // dvImage.push()
             rstudioImage.push()
             rbaseImage.push()
             testImage.push()
@@ -117,9 +103,9 @@ pipeline{
     }
   }
 
-  post{
-    always{
-      script{
+  post {
+    always {
+      script {
         deleteDir()
       }
     }
