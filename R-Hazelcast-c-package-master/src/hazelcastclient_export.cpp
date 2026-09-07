@@ -12,5 +12,6 @@ RCPP_MODULE(HazelcastClientEx){
   .method("SetVerboseMode", &HazelcastClient::SetVerboseMode)
   .method("SetMap", &HazelcastClient::SetMap)
   .method("Get", &HazelcastClient::Get)
+  .method("TryGet", &HazelcastClient::TryGet)
   .method("Put", &HazelcastClient::Put);
 }

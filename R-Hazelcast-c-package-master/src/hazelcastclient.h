@@ -10,6 +10,7 @@ public:
   HazelcastClient(std::string ip, std::string clusterName, int port = 5701);
 
   std::vector<hazelcast::byte> Get(std::string key);
+  std::vector<hazelcast::byte> TryGet(std::string key);
   void Put(std::string key, std::vector<hazelcast::byte> value);
   void SetMap(std::string mapName);
   std::string GetUrl();

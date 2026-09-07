@@ -27,6 +27,17 @@ std::vector<hazelcast::byte> HazelcastClient::Get(std::string key)
   return this->map->get<std::string, std::vector<hazelcast::byte>>(key).get().value();
 }
 
+// Returns an empty vector when the key is absent. Callers that treat a miss as a
+// normal condition use this instead of Get(), which throws.
+std::vector<hazelcast::byte> HazelcastClient::TryGet(std::string key)
+{
+  auto value = this->map->get<std::string, std::vector<hazelcast::byte>>(key).get();
+  if (!value) {
+    return std::vector<hazelcast::byte>();
+  }
+  return std::move(*value);
+}
+
 std::string HazelcastClient::GetUrl() {
   return this->ip + ":" + std::to_string(this->port) + "/" + this->mapName;
 }
