@@ -1,6 +1,9 @@
 //  HazelcastClient.cpp
 
 #include "hazelcastclient.h"
+// after hazelcastclient.h, so the Hazelcast headers are parsed before R's headers
+// remap names such as length and error
+#include <Rcpp.h>
 
 HazelcastClient::HazelcastClient(std::string ip, std::string clusterName, int port)
 {
@@ -23,7 +26,7 @@ std::vector<hazelcast::byte> HazelcastClient::Get(std::string key)
     throw std::invalid_argument("HZ error: can not find key: " + key + " at " + GetUrl());
   }
   if (this->verboseMode) {
-    std::cout << "Successfully fetched HZ value: " << this->mapName << "/" << key << "\n";
+    Rcpp::Rcout << "Successfully fetched HZ value: " << this->mapName << "/" << key << "\n";
   }
   return std::move(*value);
 }
