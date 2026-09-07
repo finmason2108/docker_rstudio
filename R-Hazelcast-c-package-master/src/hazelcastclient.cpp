@@ -19,7 +19,7 @@ HazelcastClient::HazelcastClient(std::string ip, std::string clusterName, int po
   this->map = this->hz->get_map(mapName).get();
 }
 
-std::vector<hazelcast::byte> HazelcastClient::Get(std::string key)
+std::vector<hazelcast::byte> HazelcastClient::Get(const std::string &key)
 {
   auto value = this->map->get<std::string, std::vector<hazelcast::byte>>(key).get();
   if (!value) {
@@ -33,7 +33,7 @@ std::vector<hazelcast::byte> HazelcastClient::Get(std::string key)
 
 // Returns an empty vector when the key is absent. Callers that treat a miss as a
 // normal condition use this instead of Get(), which throws.
-std::vector<hazelcast::byte> HazelcastClient::TryGet(std::string key)
+std::vector<hazelcast::byte> HazelcastClient::TryGet(const std::string &key)
 {
   auto value = this->map->get<std::string, std::vector<hazelcast::byte>>(key).get();
   if (!value) {
@@ -46,12 +46,12 @@ std::string HazelcastClient::GetUrl() {
   return this->ip + ":" + std::to_string(this->port) + "/" + this->mapName;
 }
 
-void HazelcastClient::Put(std::string key, std::vector<hazelcast::byte> value)
+void HazelcastClient::Put(const std::string &key, const std::vector<hazelcast::byte> &value)
 {
   this->map->put<std::string, std::vector<hazelcast::byte>>(key, value).get();
 }
 
-void HazelcastClient::SetMap(std::string mapName)
+void HazelcastClient::SetMap(const std::string &mapName)
 {
   this->mapName = mapName;
   this->map = hz->get_map(this->mapName).get();

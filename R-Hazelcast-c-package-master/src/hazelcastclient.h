@@ -9,15 +9,14 @@ class HazelcastClient
 public:
   HazelcastClient(std::string ip, std::string clusterName, int port = 5701);
 
-  std::vector<hazelcast::byte> Get(std::string key);
-  std::vector<hazelcast::byte> TryGet(std::string key);
-  void Put(std::string key, std::vector<hazelcast::byte> value);
-  void SetMap(std::string mapName);
+  std::vector<hazelcast::byte> Get(const std::string &key);
+  std::vector<hazelcast::byte> TryGet(const std::string &key);
+  void Put(const std::string &key, const std::vector<hazelcast::byte> &value);
+  void SetMap(const std::string &mapName);
   std::string GetUrl();
   void SetVerboseMode(bool verboseMode); 
 
 private:
-  std::string url;
   std::string ip;
   std::string clusterName;
   int port;
