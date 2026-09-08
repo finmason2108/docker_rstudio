@@ -7,6 +7,7 @@
 // Expose (some of) the HazelcastClient class
 RCPP_MODULE(HazelcastClientEx){
   Rcpp::class_<HazelcastClient>("HazelcastClient")
+  .constructor<std::string, std::string>()
   .constructor<std::string, std::string, int>()
   .method("GetUrl", &HazelcastClient::GetUrl)
   .method("SetVerboseMode", &HazelcastClient::SetVerboseMode)
