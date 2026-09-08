@@ -1,11 +1,23 @@
 FROM rocker/%%CONTAINER_TYPE%%:3.6.2
-MAINTAINER "Milos Kozak" mkozak@finmason.com
+LABEL org.opencontainers.image.authors="Milos Kozak <mkozak@finmason.com>"
 
 # Place static files
 COPY *.R /tmp/
 COPY Packages_*.py* /tmp/
 COPY sss_client.pam /etc/pam.d/sss_client
 COPY entrypoint.sh /entrypoint.sh
+
+# Debian buster is EOL: deb.debian.org and security.debian.org return 404 for it.
+# The base image ships snapshot.debian.org lines for exactly this case, commented
+# out - activate them and disable the Valid-Until check, since a Release file from
+# 2020 is long expired. The apt-get update is here so an apt failure surfaces in
+# this step rather than inside the chain below.
+RUN sed -i \
+        -e 's|^deb |#deb |' \
+        -e 's|^# deb http://snapshot\.debian\.org|deb http://snapshot.debian.org|' \
+        /etc/apt/sources.list \
+    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/10no-check-valid-until \
+    && apt-get update
 
 # Install software allowing integration with base OS
 RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
@@ -27,8 +39,8 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
     && cat /tmp/Install_versions.R /tmp/Packages_*.R > /tmp/install.R && \
     Rscript /tmp/install.R \
     # Install python deps
-    && ls /tmp/Packages_*.py2 && (apt-get install --no-install-recommends -y python-pip python-setuptools python-wheel && cat /tmp/Packages_*.py2 > /tmp/py2 | pip install -r /tmp/py2) || /bin/true \
-    && ls /tmp/Packages_*.py3 && (apt install --no-install-recommends -y python3-pip python3-setuptools python3-wheel && cat /tmp/Packages_*.py3 > /tmp/py3 | pip3 install -r /tmp/py3) || /bin/true \
+    && { if ls /tmp/Packages_*.py2 >/dev/null 2>&1; then apt-get install --no-install-recommends -y python-pip python-setuptools python-wheel && cat /tmp/Packages_*.py2 > /tmp/py2 && pip install -r /tmp/py2; fi; true; } \
+    && { if ls /tmp/Packages_*.py3 >/dev/null 2>&1; then apt-get install --no-install-recommends -y python3-pip python3-setuptools python3-wheel && cat /tmp/Packages_*.py3 > /tmp/py3 && pip3 install -r /tmp/py3; fi; true; } \
     # Final permissions and folders
     && mkdir -p /home/ta_analytics /entrypoint.d \
     && chown 10000:10000 /home/ta_analytics \
@@ -43,12 +55,20 @@ RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-d
     && cat /tmp/Test_packages.R /tmp/Packages_*.R | sed 's/install.versions(/testpackageExit(df, /g' | R 
 
 ### Hazelcast layer
-RUN echo deb http://deb.debian.org/debian buster-backports main >> /etc/apt/sources.list \
-    && apt update \
-    && apt install zlib1g-dev bzip2 cmake/buster-backports g++ wget -y
+RUN apt update \
+    && apt install zlib1g-dev bzip2 g++ wget -y
+
+# hazelcast-cpp-client 4.0.1 uses install(DIRECTORY ... TYPE INCLUDE), which needs
+# cmake 3.14; buster main has 3.13.4. The alternative, buster-backports, has no
+# cmake at the Debian snapshot date this image pins, and pointing it at a later
+# snapshot would draw Debian packages from two different dates into one image.
+# Taking cmake from upstream instead keeps every Debian package on the one date.
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.16.9/cmake-3.16.9-Linux-x86_64.tar.gz \
+    && tar -xzf cmake-3.16.9-Linux-x86_64.tar.gz -C /usr/local --strip-components=1 \
+    && rm cmake-3.16.9-Linux-x86_64.tar.gz
 
 # Boost
-RUN wget https://boostorg.jfrog.io/artifactory/main/release/1.75.0/source/boost_1_75_0.tar.bz2 -q\
+RUN wget https://archives.boost.io/release/1.75.0/source/boost_1_75_0.tar.bz2 -q\
     && tar xvf /boost_1_75_0.tar.bz2\
     && cd boost_1_75_0 \
     && ./bootstrap.sh \
@@ -65,10 +85,9 @@ RUN tar xvf /v4.0.1.tar.gz\
     && cmake --build . --config Release\
     && cmake --build . --target install --config Release
 
-# R-Cpp bridge  
-RUN wget https://github.com/znevrly/R-Hazelcast-c-package/archive/refs/heads/master.zip 
-RUN unzip master.zip\
-    && cd  R-Hazelcast-c-package-master/\
+# R-Cpp bridge
+COPY R-Hazelcast-c-package-master/ /R-Hazelcast-c-package-master/
+RUN cd  R-Hazelcast-c-package-master/\
     && cp /usr/local/lib/libboost_thread.a hz-libs/lib/\
     && cp /usr/local/lib/libboost_chrono.a hz-libs/lib/\
     && cp /home/hz/lib/libhazelcast-cpp-client.a hz-libs/lib/\
@@ -76,4 +95,4 @@ RUN unzip master.zip\
 
 # OPS-1324
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
-CMD = ["/bin/bash"]
+CMD ["/bin/bash"]
