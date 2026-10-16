@@ -1,9 +1,9 @@
 # Every CRAN package in the R site library, pinned, in dependency order so that
 # each one compiles against the pinned versions of its dependencies.
 #
-# Generated from the rstudio:test-2.1.21 image with tools/extract-pins.sh. Regenerate
-# the same way after a deliberate upgrade, so that transitive dependencies stay
-# explicit instead of tracking whatever the CRAN snapshot holds.
+# Generated with tools/extract-pins.sh.  Regenerate the same way after a
+# deliberate upgrade, so that transitive dependencies stay explicit instead
+# of tracking whatever the CRAN snapshot holds.
 #
 # Base and recommended packages that ship with R are excluded, as is
 # HazelcastClient, which the Dockerfile builds from source.
