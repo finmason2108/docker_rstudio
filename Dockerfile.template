@@ -19,6 +19,11 @@ RUN sed -i \
     && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/10no-check-valid-until \
     && apt-get update
 
+# CA roots missing from the buster ca-certificates bundle. update-ca-certificates
+# takes only files ending in .crt, in PEM format.
+COPY certs/ /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 # Install software allowing integration with base OS
 RUN BUILDDEPS="libpq-dev libssl-dev libpcre3-dev libbz2-dev liblzma-dev zlib1g-dev libicu-dev libxml2-dev libcurl4-openssl-dev python-dev libpng-dev" \
     && apt-get update && apt-get install -y --no-install-recommends \

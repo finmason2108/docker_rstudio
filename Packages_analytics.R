@@ -1,9 +1,9 @@
 # Every CRAN package in the R site library, pinned, in dependency order so that
 # each one compiles against the pinned versions of its dependencies.
 #
-# Generated from the rstudio:test-2.1.21 image with tools/extract-pins.sh. Regenerate
-# the same way after a deliberate upgrade, so that transitive dependencies stay
-# explicit instead of tracking whatever the CRAN snapshot holds.
+# Generated with tools/extract-pins.sh.  Regenerate the same way after a
+# deliberate upgrade, so that transitive dependencies stay explicit instead
+# of tracking whatever the CRAN snapshot holds.
 #
 # Base and recommended packages that ship with R are excluded, as is
 # HazelcastClient, which the Dockerfile builds from source.
@@ -47,6 +47,7 @@ install.versions('randomForest','4.6-12')
 install.versions('rapidjsonr','1.2.0')
 install.versions('RColorBrewer','1.1-2')
 install.versions('Rcpp','1.0.1')
+install.versions('rematch','1.0.1')
 install.versions('rJava','0.9-12')
 install.versions('rlang','0.4.11')
 install.versions('rpart','4.1-10')
@@ -106,7 +107,10 @@ install.versions('hms','1.1.1')
 install.versions('quantmod','0.4-11')
 install.versions('rmarkdown','1.18')
 install.versions('tibble','2.1.1')
+install.versions('cellranger','1.1.0')
 install.versions('dplyr','0.8.0.1')
 install.versions('ggplot2','3.1.0')
+install.versions('progress','1.2.0')
 install.versions('RPostgres','1.4.6')
+install.versions('readxl','1.3.1')
 install.versions('tidyr','0.8.3')
