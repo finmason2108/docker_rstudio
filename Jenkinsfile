@@ -52,7 +52,7 @@ pipeline {
               sh '''
                 for i in dv rbase rstudio; do
                   echo $i;
-                  cp addons/* $i/
+                  cp -r addons/* $i/
                   cp Packages_analytics.* $i/
                   cp -r R-Hazelcast-c-package-master $i/
                   touch $i/Packages_dummy.py

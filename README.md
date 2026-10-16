@@ -29,5 +29,8 @@ docker_run_r /full/path/to/hello.r
 You can update this yourself!  Documentation how to is in Confluence: https://finmason.atlassian.net/wiki/spaces/ID/pages/716242961/RStudio+and+base+R+containers
  
 
+## CA certificates
+Root certificates the base image's ca-certificates bundle lacks go in `addons/certs/`, one PEM file per certificate, named `*.crt`. The build adds them to `/etc/ssl/certs/ca-certificates.crt` with `update-ca-certificates`.
+
 ## Python
 There are pre-prepared Packages_*.py2/3 files for handling python2/3 installation. Please bear in mind that at least one .py2 or .py3 file needs to be in place for Packages_xxx. 
